@@ -1,0 +1,41 @@
+version: '3'
+
+services: 
+  reverse_proxy:
+    image: traefik:latest
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./letsencrypt:/letsencrypt
+
+    command:
+      - --log=true
+      - --log.level=INFO
+      
+      - --entryPoints.web.address=:80
+      - --entryPoints.web.http.redirections.entryPoint.to=web-secure
+      - --entryPoints.web.http.redirections.entryPoint.scheme=https
+
+      - --entryPoints.web-secure.address=:443
+      - --entryPoints.web-secure.http.tls.certResolver=default-resolver
+
+      - --certificatesResolvers.default-resolver.acme.email=${TRAEFIK_EMAIL}
+      - --certificatesResolvers.default-resolver.acme.storage=/letsencrypt/acme.json
+      - --certificatesResolvers.default-resolver.acme.httpChallenge.entrypoint=web
+
+      - --providers.docker=true
+      - --providers.docker.network=webproxy
+      - --providers.docker.exposedByDefault=false
+      - --providers.docker.watch=true
+      - --providers.docker.swarmMode=false
+
+    networks:
+      - webproxy
+
+networks:
+  webproxy:
