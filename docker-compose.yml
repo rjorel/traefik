@@ -35,6 +35,7 @@ services:
 
     networks:
       - webproxy
+      - default
 
   nginx_error_pages:
     image: nginx:stable-alpine
@@ -57,7 +58,7 @@ services:
       traefik.http.services.error-pages-service.loadbalancer.server.port: 80
 
     networks:
-        - webproxy
-
+        - default
+        
 networks:
   webproxy:
