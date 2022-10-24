@@ -29,7 +29,6 @@ services:
       - --certificatesResolvers.default-resolver.acme.httpChallenge.entrypoint=web
 
       - --providers.docker=true
-      - --providers.docker.network=webproxy
       - --providers.docker.exposedByDefault=false
       - --providers.docker.watch=true
       - --providers.docker.swarmMode=false
