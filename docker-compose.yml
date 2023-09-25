@@ -30,6 +30,8 @@ services:
       - --certificatesResolvers.default-resolver.acme.storage=/letsencrypt/acme.json
       - --certificatesResolvers.default-resolver.acme.httpChallenge.entrypoint=web
 
+      - --metrics.prometheus=true
+
       - --providers.docker=true
       - --providers.docker.exposedByDefault=false
       - --providers.docker.watch=true
@@ -71,6 +73,31 @@ services:
 
     networks:
       - default
-        
+
+  prometheus:
+    image: prom/prometheus:latest
+    restart: always
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.size=256MB'
+
+    labels:
+      traefik.enable: true
+
+      traefik.http.routers.prometheus.rule: Host(`${PROMETHEUS_HOSTNAME}`)
+      traefik.http.routers.prometheus.middlewares: traefik-auth
+      traefik.http.services.prometheus.loadbalancer.server.port: 9090
+       
+    networks:
+      - default
+
+volumes:
+  prometheus_data:
+
 networks:
   webproxy:
