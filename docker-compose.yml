@@ -96,8 +96,28 @@ services:
     networks:
       - default
 
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+      - grafana_data:/var/lib/grafana
+
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+
+    labels:
+      traefik.enable: true
+
+      traefik.http.routers.grafana.rule: Host(`${GRAFANA_HOSTNAME}`)
+      traefik.http.routers.grafana.middlewares: traefik-auth
+      traefik.http.services.grafana.loadbalancer.server.port: 3000
+    
+    networks:
+      - default
+
 volumes:
   prometheus_data:
+  grafana_data:
 
 networks:
   webproxy:
