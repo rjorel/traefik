@@ -33,7 +33,6 @@ services:
       - --providers.docker=true
       - --providers.docker.exposedByDefault=false
       - --providers.docker.watch=true
-      - --providers.docker.swarmMode=false
 
     labels:
       traefik.enable: true
