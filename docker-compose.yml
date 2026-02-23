@@ -1,7 +1,7 @@
 services:
   reverse_proxy:
     image: traefik:latest
-    restart: always
+    restart: unless-stopped
     ports:
       - 80:80
       - 443:443
@@ -45,7 +45,7 @@ services:
 
   nginx_error_pages:
     image: nginx:stable-alpine
-    restart: always
+    restart: unless-stopped
     volumes:
       - ./nginx/error-pages:/usr/share/nginx/error-pages
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
