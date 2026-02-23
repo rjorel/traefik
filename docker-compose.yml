@@ -10,7 +10,6 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - ./letsencrypt:/letsencrypt
-
     command:
       - --api=true
 
@@ -28,12 +27,9 @@ services:
       - --certificatesResolvers.default-resolver.acme.storage=/letsencrypt/acme.json
       - --certificatesResolvers.default-resolver.acme.httpChallenge.entrypoint=web
 
-      - --metrics.prometheus=true
-
       - --providers.docker=true
       - --providers.docker.exposedByDefault=false
       - --providers.docker.watch=true
-
     labels:
       traefik.enable: true
 
@@ -43,7 +39,6 @@ services:
 
       traefik.http.middlewares.traefik-auth.basicauth.users: ${TRAEFIK_BASIC_AUTH}
       traefik.http.middlewares.traefik-auth.basicauth.removeheader: true
-
     networks:
       - webproxy
       - default
@@ -54,7 +49,6 @@ services:
     volumes:
       - ./nginx/error-pages:/usr/share/nginx/error-pages
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-
     labels:
       traefik.enable: true
 
@@ -67,54 +61,8 @@ services:
       traefik.http.middlewares.error-pages-middleware.errors.query: /{status}.html
 
       traefik.http.services.error-pages-service.loadbalancer.server.port: 80
-
     networks:
       - default
-
-  prometheus:
-    image: prom/prometheus:latest
-    restart: always
-    volumes:
-      - ./prometheus/:/etc/prometheus/
-      - prometheus_data:/prometheus
-
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.size=256MB'
-
-    labels:
-      traefik.enable: true
-
-      traefik.http.routers.prometheus.rule: Host(`${PROMETHEUS_HOSTNAME}`)
-      traefik.http.routers.prometheus.middlewares: traefik-auth
-      traefik.http.services.prometheus.loadbalancer.server.port: 9090
-       
-    networks:
-      - default
-
-  grafana:
-    image: grafana/grafana:latest
-    volumes:
-      - ./grafana/provisioning/:/etc/grafana/provisioning/
-      - grafana_data:/var/lib/grafana
-
-    environment:
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
-
-    labels:
-      traefik.enable: true
-
-      traefik.http.routers.grafana.rule: Host(`${GRAFANA_HOSTNAME}`)
-      traefik.http.routers.grafana.middlewares: traefik-auth
-      traefik.http.services.grafana.loadbalancer.server.port: 3000
-    
-    networks:
-      - default
-
-volumes:
-  prometheus_data:
-  grafana_data:
 
 networks:
   webproxy:
