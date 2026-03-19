@@ -43,6 +43,24 @@ services:
       - webproxy
       - default
 
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      traefik.enable: true
+      traefik.docker.network: webproxy
+
+      traefik.http.routers.dozzle-router.rule: Host(`${DOZZLE_HOSTNAME}`)
+      traefik.http.routers.dozzle-router.middlewares: dozzle-auth
+
+      traefik.http.middlewares.dozzle-auth.basicauth.users: ${TRAEFIK_BASIC_AUTH}
+      traefik.http.middlewares.dozzle-auth.basicauth.removeheader: true
+
+      traefik.http.services.dozzle-service.loadbalancer.server.port: 8080
+    networks:
+      - webproxy
+
   nginx_error_pages:
     image: nginx:stable-alpine
     restart: unless-stopped
