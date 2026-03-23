@@ -15,6 +15,7 @@ services:
 
       - --log=true
       - --log.level=INFO
+      - --accessLog=true
 
       - --entryPoints.web.address=:80
       - --entryPoints.web.http.redirections.entryPoint.to=web-secure
@@ -26,8 +27,6 @@ services:
       - --certificatesResolvers.default-resolver.acme.email=${TRAEFIK_EMAIL}
       - --certificatesResolvers.default-resolver.acme.storage=/letsencrypt/acme.json
       - --certificatesResolvers.default-resolver.acme.httpChallenge.entrypoint=web
-
-      - --accessLog=true
 
       - --providers.docker=true
       - --providers.docker.exposedByDefault=false
