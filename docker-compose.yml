@@ -27,6 +27,8 @@ services:
       - --certificatesResolvers.default-resolver.acme.storage=/letsencrypt/acme.json
       - --certificatesResolvers.default-resolver.acme.httpChallenge.entrypoint=web
 
+      - --accessLog=true
+
       - --providers.docker=true
       - --providers.docker.exposedByDefault=false
       - --providers.docker.watch=true
